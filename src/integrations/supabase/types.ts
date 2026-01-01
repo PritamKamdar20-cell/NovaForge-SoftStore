@@ -77,26 +77,38 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          ban_reason: string | null
+          banned_at: string | null
+          banned_by: string | null
           created_at: string
           display_name: string | null
           email: string
           id: string
+          is_banned: boolean
           updated_at: string
         }
         Insert: {
           avatar_url?: string | null
+          ban_reason?: string | null
+          banned_at?: string | null
+          banned_by?: string | null
           created_at?: string
           display_name?: string | null
           email: string
           id: string
+          is_banned?: boolean
           updated_at?: string
         }
         Update: {
           avatar_url?: string | null
+          ban_reason?: string | null
+          banned_at?: string | null
+          banned_by?: string | null
           created_at?: string
           display_name?: string | null
           email?: string
           id?: string
+          is_banned?: boolean
           updated_at?: string
         }
         Relationships: []
@@ -274,6 +286,7 @@ export type Database = {
         Returns: boolean
       }
       is_first_user: { Args: never; Returns: boolean }
+      is_user_banned: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "owner" | "admin" | "helper" | "user"

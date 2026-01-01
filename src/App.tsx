@@ -11,6 +11,7 @@ import Comments from "./pages/Comments";
 import Requests from "./pages/Requests";
 import Profile from "./pages/Profile";
 import HowToUse from "./pages/HowToUse";
+import ReportIssue from "./pages/ReportIssue";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/requests" element={<Requests />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/how-to-use" element={<HowToUse />} />
+          <Route path="/report-issue" element={<ReportIssue />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

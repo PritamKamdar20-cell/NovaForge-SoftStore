@@ -1,5 +1,6 @@
 import { ArrowRight, Download, Sparkles, Users, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const stats = [
   { icon: Users, label: "Users", value: "0", suffix: "+" },
@@ -38,14 +39,16 @@ export function HeroSection() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 animate-fade-in" style={{ animationDelay: "0.3s" }}>
-            <Button size="lg" className="btn-nova text-primary-foreground border-0 px-8 h-12 text-base">
-              <span className="relative z-10 flex items-center gap-2">
-                Explore Software
-                <ArrowRight className="w-5 h-5" />
-              </span>
+            <Button size="lg" className="btn-nova text-primary-foreground border-0 px-8 h-12 text-base" asChild>
+              <Link to="/how-to-use">
+                <span className="relative z-10 flex items-center gap-2">
+                  Explore Software
+                  <ArrowRight className="w-5 h-5" />
+                </span>
+              </Link>
             </Button>
-            <Button size="lg" variant="outline" className="h-12 px-8 text-base border-border/50 hover:bg-muted/50">
-              Upload Your Software
+            <Button size="lg" variant="outline" className="h-12 px-8 text-base border-border/50 hover:bg-muted/50" asChild>
+              <Link to="/upload-software">Upload Your Software</Link>
             </Button>
           </div>
 

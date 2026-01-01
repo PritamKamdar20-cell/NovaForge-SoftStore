@@ -4,9 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, User, Crown, Wrench, Users } from "lucide-react";
+import { Shield, User, Crown, Wrench, Users, Ban, Check } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import type { Database } from "@/integrations/supabase/types";
 
 type AppRole = Database["public"]["Enums"]["app_role"];
@@ -16,6 +20,8 @@ interface UserWithRole {
   email: string;
   display_name: string | null;
   role: AppRole;
+  is_banned: boolean;
+  ban_reason: string | null;
 }
 
 const ROLE_CONFIG: Record<AppRole, { label: string; icon: typeof User; color: string }> = {
@@ -39,13 +45,18 @@ const RoleManagement = () => {
     }
   }, [role, authLoading, navigate]);
 
+  const [banDialogOpen, setBanDialogOpen] = useState(false);
+  const [banTarget, setBanTarget] = useState<UserWithRole | null>(null);
+  const [banReason, setBanReason] = useState("");
+  const [banningUserId, setBanningUserId] = useState<string | null>(null);
+
   const fetchUsers = async () => {
     setLoading(true);
     
     // Fetch profiles and roles
     const { data: profiles, error: profilesError } = await supabase
       .from("profiles")
-      .select("id, email, display_name");
+      .select("id, email, display_name, is_banned, ban_reason");
 
     if (profilesError) {
       console.error("Error fetching profiles:", profilesError);
@@ -71,6 +82,8 @@ const RoleManagement = () => {
         email: profile.email,
         display_name: profile.display_name,
         role: (userRole?.role as AppRole) || "user",
+        is_banned: profile.is_banned,
+        ban_reason: profile.ban_reason,
       };
     });
 
@@ -127,6 +140,84 @@ const RoleManagement = () => {
     }
 
     setUpdatingUserId(null);
+  };
+
+  const openBanDialog = (userItem: UserWithRole) => {
+    setBanTarget(userItem);
+    setBanReason("");
+    setBanDialogOpen(true);
+  };
+
+  const handleBanUser = async () => {
+    if (!banTarget) return;
+
+    setBanningUserId(banTarget.id);
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        is_banned: true,
+        ban_reason: banReason || null,
+        banned_at: new Date().toISOString(),
+        banned_by: user?.id,
+      })
+      .eq("id", banTarget.id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to ban user",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "User Banned",
+        description: `${banTarget.display_name || banTarget.email} has been banned`,
+      });
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === banTarget.id ? { ...u, is_banned: true, ban_reason: banReason } : u
+        )
+      );
+    }
+
+    setBanningUserId(null);
+    setBanDialogOpen(false);
+    setBanTarget(null);
+  };
+
+  const handleUnbanUser = async (userItem: UserWithRole) => {
+    setBanningUserId(userItem.id);
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        is_banned: false,
+        ban_reason: null,
+        banned_at: null,
+        banned_by: null,
+      })
+      .eq("id", userItem.id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to unban user",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "User Unbanned",
+        description: `${userItem.display_name || userItem.email} has been unbanned`,
+      });
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === userItem.id ? { ...u, is_banned: false, ban_reason: null } : u
+        )
+      );
+    }
+
+    setBanningUserId(null);
   };
 
   if (authLoading || loading) {
@@ -214,41 +305,74 @@ const RoleManagement = () => {
                     </div>
 
                     <div className="flex items-center gap-3 w-full sm:w-auto">
+                      {userItem.is_banned && (
+                        <Badge variant="destructive" className="gap-1">
+                          <Ban className="w-3 h-3" />
+                          Banned
+                        </Badge>
+                      )}
+                      
                       {isOwner ? (
                         <Badge variant="outline" className={config.color}>
                           <Crown className="w-3 h-3 mr-1" />
                           Owner
                         </Badge>
                       ) : (
-                        <Select
-                          value={userItem.role}
-                          onValueChange={(value) => handleRoleChange(userItem.id, value as AppRole)}
-                          disabled={updatingUserId === userItem.id}
-                        >
-                          <SelectTrigger className="w-full sm:w-36 bg-background">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="bg-background border border-border">
-                            <SelectItem value="user">
-                              <span className="flex items-center gap-2">
-                                <User className="w-3 h-3" />
-                                User
-                              </span>
-                            </SelectItem>
-                            <SelectItem value="helper">
-                              <span className="flex items-center gap-2">
-                                <Wrench className="w-3 h-3" />
-                                Helper
-                              </span>
-                            </SelectItem>
-                            <SelectItem value="admin">
-                              <span className="flex items-center gap-2">
-                                <Shield className="w-3 h-3" />
-                                Admin
-                              </span>
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <>
+                          <Select
+                            value={userItem.role}
+                            onValueChange={(value) => handleRoleChange(userItem.id, value as AppRole)}
+                            disabled={updatingUserId === userItem.id}
+                          >
+                            <SelectTrigger className="w-full sm:w-36 bg-background">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="bg-background border border-border">
+                              <SelectItem value="user">
+                                <span className="flex items-center gap-2">
+                                  <User className="w-3 h-3" />
+                                  User
+                                </span>
+                              </SelectItem>
+                              <SelectItem value="helper">
+                                <span className="flex items-center gap-2">
+                                  <Wrench className="w-3 h-3" />
+                                  Helper
+                                </span>
+                              </SelectItem>
+                              <SelectItem value="admin">
+                                <span className="flex items-center gap-2">
+                                  <Shield className="w-3 h-3" />
+                                  Admin
+                                </span>
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                          
+                          {userItem.is_banned ? (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleUnbanUser(userItem)}
+                              disabled={banningUserId === userItem.id}
+                              className="gap-1"
+                            >
+                              <Check className="w-3 h-3" />
+                              Unban
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => openBanDialog(userItem)}
+                              disabled={banningUserId === userItem.id}
+                              className="gap-1"
+                            >
+                              <Ban className="w-3 h-3" />
+                              Ban
+                            </Button>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
@@ -258,6 +382,38 @@ const RoleManagement = () => {
           )}
         </div>
       </section>
+
+      {/* Ban Dialog */}
+      <Dialog open={banDialogOpen} onOpenChange={setBanDialogOpen}>
+        <DialogContent className="bg-background border border-border">
+          <DialogHeader>
+            <DialogTitle>Ban User</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to ban {banTarget?.display_name || banTarget?.email}? They will not be able to access the platform.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="ban-reason">Reason (optional)</Label>
+              <Textarea
+                id="ban-reason"
+                placeholder="Enter the reason for banning this user..."
+                value={banReason}
+                onChange={(e) => setBanReason(e.target.value)}
+                className="mt-2"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBanDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleBanUser} disabled={banningUserId !== null}>
+              {banningUserId ? "Banning..." : "Ban User"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 };

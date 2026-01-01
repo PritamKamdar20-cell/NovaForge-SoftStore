@@ -57,7 +57,7 @@ const Contact = () => {
               </div>
 
               <div className="p-6 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20">
-                <h3 className="font-semibold text-lg mb-2">NovaForge Studio</h3>
+                <h3 className="font-semibold text-lg mb-2">NovaForge Studeeo</h3>
                 <p className="text-muted-foreground text-sm">
                   Created in December 2025 by passionate students from India. 
                   We believe in making quality software accessible to everyone.

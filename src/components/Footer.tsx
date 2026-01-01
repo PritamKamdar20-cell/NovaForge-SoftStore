@@ -65,7 +65,7 @@ export function Footer() {
         {/* Bottom */}
         <div className="border-t border-border/30 mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
-            © 2025 NovaForge Studio. All rights reserved.
+            © 2025 NovaForge Studeeo. All rights reserved.
           </p>
           <p className="text-sm text-muted-foreground flex items-center gap-1">
             Made with <Heart className="w-4 h-4 text-destructive fill-destructive" /> in India

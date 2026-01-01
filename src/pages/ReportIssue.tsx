@@ -113,19 +113,19 @@ const ReportIssue = () => {
             <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
               <h4 className="font-semibold mb-2 flex items-center gap-2">
                 <Shield className="w-5 h-5 text-blue-400" />
-                For Helpers
+                Who Can Report What
               </h4>
               <p className="text-sm text-muted-foreground">
-                Helpers can report issues they find while assisting users. Your reports help maintain platform quality.
+                <strong>Helpers</strong> can report all issue types (bugs, fake content, security, and other). <strong>Users</strong> can only report bugs.
               </p>
             </div>
             <div className="p-6 rounded-2xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20">
               <h4 className="font-semibold mb-2 flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5 text-purple-400" />
-                Resolution Process
+                Manage Reports
               </h4>
               <p className="text-sm text-muted-foreground">
-                Admins and the Owner review all reports and take appropriate action to resolve issues promptly.
+                Reports can be edited or deleted by the <strong>sender</strong>, <strong>Admin</strong>, or <strong>Owner</strong>. Admins and Owner resolve all issues.
               </p>
             </div>
           </div>

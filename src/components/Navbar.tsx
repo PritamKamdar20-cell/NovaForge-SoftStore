@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, User, LogIn } from "lucide-react";
+import { Menu, X, User, LogIn, LogOut, Crown, Shield, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import { Badge } from "@/components/ui/badge";
 
 const navItems = [
   { name: "News", path: "/news" },
@@ -14,9 +16,26 @@ const navItems = [
   { name: "How to Use", path: "/how-to-use" },
 ];
 
+const roleIcons = {
+  owner: Crown,
+  admin: Shield,
+  helper: Wrench,
+  user: User,
+};
+
+const roleColors = {
+  owner: "from-yellow-500 to-orange-500",
+  admin: "from-purple-500 to-pink-500",
+  helper: "from-blue-500 to-cyan-500",
+  user: "from-primary to-secondary",
+};
+
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { user, role, signOut, loading } = useAuth();
+
+  const RoleIcon = role ? roleIcons[role] : User;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass-card border-b border-border/30">
@@ -51,14 +70,51 @@ export function Navbar() {
 
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-              <LogIn className="w-4 h-4 mr-2" />
-              Sign In
-            </Button>
-            <Button size="sm" className="btn-nova text-primary-foreground border-0">
-              <User className="w-4 h-4 mr-2" />
-              <span className="relative z-10">Sign Up</span>
-            </Button>
+            {loading ? (
+              <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
+            ) : user ? (
+              <div className="flex items-center gap-3">
+                {role && (
+                  <Badge 
+                    variant="outline" 
+                    className={`bg-gradient-to-r ${roleColors[role]} text-white border-0 capitalize`}
+                  >
+                    <RoleIcon className="w-3 h-3 mr-1" />
+                    {role}
+                  </Badge>
+                )}
+                <Link to="/profile">
+                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                    <User className="w-4 h-4 mr-2" />
+                    Profile
+                  </Button>
+                </Link>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={signOut}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Link to="/auth">
+                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                    <LogIn className="w-4 h-4 mr-2" />
+                    Sign In
+                  </Button>
+                </Link>
+                <Link to="/auth">
+                  <Button size="sm" className="btn-nova text-primary-foreground border-0">
+                    <User className="w-4 h-4 mr-2" />
+                    <span className="relative z-10">Sign Up</span>
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -90,12 +146,44 @@ export function Navbar() {
                 </Link>
               ))}
               <div className="flex gap-2 mt-4 px-4">
-                <Button variant="outline" size="sm" className="flex-1">
-                  Sign In
-                </Button>
-                <Button size="sm" className="flex-1 btn-nova text-primary-foreground border-0">
-                  <span className="relative z-10">Sign Up</span>
-                </Button>
+                {user ? (
+                  <>
+                    {role && (
+                      <Badge 
+                        variant="outline" 
+                        className={`bg-gradient-to-r ${roleColors[role]} text-white border-0 capitalize`}
+                      >
+                        <RoleIcon className="w-3 h-3 mr-1" />
+                        {role}
+                      </Badge>
+                    )}
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex-1"
+                      onClick={() => {
+                        signOut();
+                        setIsOpen(false);
+                      }}
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sign Out
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/auth" className="flex-1" onClick={() => setIsOpen(false)}>
+                      <Button variant="outline" size="sm" className="w-full">
+                        Sign In
+                      </Button>
+                    </Link>
+                    <Link to="/auth" className="flex-1" onClick={() => setIsOpen(false)}>
+                      <Button size="sm" className="w-full btn-nova text-primary-foreground border-0">
+                        <span className="relative z-10">Sign Up</span>
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>

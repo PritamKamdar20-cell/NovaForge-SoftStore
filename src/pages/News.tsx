@@ -1,7 +1,11 @@
 import { Layout } from "@/components/Layout";
-import { Calendar, User, Trash2, Newspaper } from "lucide-react";
+import { Calendar, User, Trash2, Newspaper, Plus, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -19,6 +23,8 @@ interface NewsItem {
   created_at: string;
 }
 
+const CATEGORIES = ["Announcement", "Feature", "Guide", "Update", "Event"];
+
 const News = () => {
   const { user, role } = useAuth();
   const { toast } = useToast();
@@ -27,6 +33,17 @@ const News = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [newsToDelete, setNewsToDelete] = useState<NewsItem | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Create news form state
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    title: "",
+    excerpt: "",
+    content: "",
+    category: "Announcement",
+    image_url: "",
+  });
 
   const fetchNews = async () => {
     setLoading(true);
@@ -47,7 +64,7 @@ const News = () => {
     fetchNews();
   }, []);
 
-  const canDelete = () => {
+  const canManageNews = () => {
     return role === "admin" || role === "owner";
   };
 
@@ -81,6 +98,53 @@ const News = () => {
     setNewsToDelete(null);
   };
 
+  const handleCreateNews = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+
+    if (!formData.title.trim()) {
+      toast({
+        title: "Error",
+        description: "Title is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    const { error } = await supabase.from("news").insert({
+      user_id: user.id,
+      title: formData.title.trim(),
+      excerpt: formData.excerpt.trim() || null,
+      content: formData.content.trim() || null,
+      category: formData.category,
+      image_url: formData.image_url.trim() || null,
+    });
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create news",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "News created successfully",
+      });
+      setFormData({
+        title: "",
+        excerpt: "",
+        content: "",
+        category: "Announcement",
+        image_url: "",
+      });
+      setShowCreateForm(false);
+      fetchNews();
+    }
+    setIsSubmitting(false);
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       month: "long",
@@ -93,7 +157,7 @@ const News = () => {
       <section className="pt-32 pb-20">
         <div className="container px-4">
           {/* Header */}
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-8">
             <h1 className="text-4xl sm:text-5xl font-bold mb-6">
               Latest <span className="gradient-text">News</span>
             </h1>
@@ -101,6 +165,105 @@ const News = () => {
               Stay updated with announcements, features, and guides from NovaForge SoftStore.
             </p>
           </div>
+
+          {/* Create News Button for Admin/Owner */}
+          {canManageNews() && (
+            <div className="flex justify-center mb-8">
+              <Button
+                onClick={() => setShowCreateForm(!showCreateForm)}
+                className="gap-2"
+              >
+                {showCreateForm ? (
+                  <>
+                    <X className="w-4 h-4" />
+                    Cancel
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-4 h-4" />
+                    Create News
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
+
+          {/* Create News Form */}
+          {showCreateForm && canManageNews() && (
+            <form
+              onSubmit={handleCreateNews}
+              className="glass-card p-6 max-w-2xl mx-auto mb-12 space-y-4"
+            >
+              <h2 className="text-xl font-semibold mb-4">Create News Article</h2>
+              
+              <div className="space-y-2">
+                <Label htmlFor="title">Title *</Label>
+                <Input
+                  id="title"
+                  placeholder="Enter news title"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  maxLength={200}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="category">Category</Label>
+                <Select
+                  value={formData.category}
+                  onValueChange={(value) => setFormData({ ...formData, category: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CATEGORIES.map((cat) => (
+                      <SelectItem key={cat} value={cat}>
+                        {cat}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="excerpt">Excerpt</Label>
+                <Textarea
+                  id="excerpt"
+                  placeholder="Brief summary of the news"
+                  value={formData.excerpt}
+                  onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
+                  rows={2}
+                  maxLength={500}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="content">Content</Label>
+                <Textarea
+                  id="content"
+                  placeholder="Full news content"
+                  value={formData.content}
+                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                  rows={6}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="image_url">Image URL (optional)</Label>
+                <Input
+                  id="image_url"
+                  placeholder="https://example.com/image.jpg"
+                  value={formData.image_url}
+                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                />
+              </div>
+
+              <Button type="submit" disabled={isSubmitting} className="w-full">
+                {isSubmitting ? "Publishing..." : "Publish News"}
+              </Button>
+            </form>
+          )}
 
           {/* News Grid */}
           {loading ? (
@@ -140,7 +303,7 @@ const News = () => {
                     <Badge className="absolute top-4 left-4 bg-primary/80 text-primary-foreground">
                       {news.category}
                     </Badge>
-                    {canDelete() && (
+                    {canManageNews() && (
                       <Button
                         size="icon"
                         variant="destructive"

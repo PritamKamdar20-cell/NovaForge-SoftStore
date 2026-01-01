@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Mail, Github, Twitter, Heart } from "lucide-react";
+import { Mail, Heart } from "lucide-react";
 
 export function Footer() {
   return (
@@ -23,12 +23,6 @@ export function Footer() {
             <div className="flex items-center gap-4">
               <a href="mailto:pritamkamdar3.0@outlook.com" className="text-muted-foreground hover:text-primary transition-colors">
                 <Mail className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                <Github className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                <Twitter className="w-5 h-5" />
               </a>
             </div>
           </div>

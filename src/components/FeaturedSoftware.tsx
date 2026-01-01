@@ -12,54 +12,45 @@ const platformColors: Record<string, string> = {
   Mobile: "bg-pink-500/20 text-pink-400 border-pink-500/30",
 };
 
-const featuredSoftware = [
-  {
-    id: 1,
-    name: "CodeMaster Pro",
-    description: "Advanced code editor with AI assistance and multi-language support.",
-    platforms: ["Windows", "Mac", "Linux"],
-    downloads: 0,
-    rating: 4.8,
-    price: "Free",
-    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=250&fit=crop",
-  },
-  {
-    id: 2,
-    name: "PixelForge Studio",
-    description: "Professional image editing with layer support and filters.",
-    platforms: ["Windows", "Mac", "Web"],
-    downloads: 0,
-    rating: 4.6,
-    price: "₹499",
-    image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=250&fit=crop",
-  },
-  {
-    id: 3,
-    name: "SyncCloud",
-    description: "Seamless file synchronization across all your devices.",
-    platforms: ["Windows", "Mac", "Android", "iOS"],
-    downloads: 0,
-    rating: 4.9,
-    price: "Free",
-    image: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=400&h=250&fit=crop",
-  },
-  {
-    id: 4,
-    name: "GameVault",
-    description: "Ultimate game library manager with cloud saves.",
-    platforms: ["Windows", "Linux", "Web"],
-    downloads: 0,
-    rating: 4.7,
-    price: "₹299",
-    image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=400&h=250&fit=crop",
-  },
-];
+const featuredSoftware: any[] = [];
 
 export function FeaturedSoftware() {
+  if (featuredSoftware.length === 0) {
+    return (
+      <section className="py-20 relative">
+        <div className="container px-4">
+          {/* Section Header */}
+          <div className="text-center mb-12">
+            <Badge variant="outline" className="mb-4 border-primary/50 text-primary">
+              Featured Collection
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+              Popular <span className="gradient-text">Software</span>
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Explore our curated collection of top-rated software trusted by developers and users worldwide.
+            </p>
+          </div>
+
+          {/* Empty State */}
+          <div className="text-center py-16 glass-card max-w-md mx-auto">
+            <Download className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-2">No Software Yet</h3>
+            <p className="text-muted-foreground mb-6">
+              Be the first to upload software to NovaForge SoftStore!
+            </p>
+            <Button className="btn-nova text-primary-foreground border-0">
+              <span className="relative z-10">Upload Software</span>
+            </Button>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="py-20 relative">
       <div className="container px-4">
-        {/* Section Header */}
         <div className="text-center mb-12">
           <Badge variant="outline" className="mb-4 border-primary/50 text-primary">
             Featured Collection
@@ -72,7 +63,6 @@ export function FeaturedSoftware() {
           </p>
         </div>
 
-        {/* Software Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {featuredSoftware.map((software, index) => (
             <div
@@ -80,12 +70,11 @@ export function FeaturedSoftware() {
               className="software-card animate-fade-in"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
-              {/* Image */}
               <div className="relative h-40 overflow-hidden">
                 <img
                   src={software.image}
                   alt={software.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  className="w-full h-full object-cover transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-card to-transparent" />
                 <div className="absolute top-3 right-3">
@@ -94,29 +83,16 @@ export function FeaturedSoftware() {
                   </Badge>
                 </div>
               </div>
-
-              {/* Content */}
               <div className="p-4">
-                <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors">
-                  {software.name}
-                </h3>
-                <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                  {software.description}
-                </p>
-
-                {/* Platforms */}
+                <h3 className="font-semibold text-lg mb-2">{software.name}</h3>
+                <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{software.description}</p>
                 <div className="flex flex-wrap gap-1.5 mb-4">
-                  {software.platforms.map((platform) => (
-                    <span
-                      key={platform}
-                      className={`text-xs px-2 py-0.5 rounded border ${platformColors[platform]}`}
-                    >
+                  {software.platforms.map((platform: string) => (
+                    <span key={platform} className={`text-xs px-2 py-0.5 rounded border ${platformColors[platform]}`}>
                       {platform}
                     </span>
                   ))}
                 </div>
-
-                {/* Stats & Action */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1">
@@ -135,13 +111,6 @@ export function FeaturedSoftware() {
               </div>
             </div>
           ))}
-        </div>
-
-        {/* View All Button */}
-        <div className="text-center mt-12">
-          <Button variant="outline" size="lg" className="border-border/50 hover:bg-muted/50">
-            View All Software
-          </Button>
         </div>
       </div>
     </section>

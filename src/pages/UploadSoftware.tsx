@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
+import { WebFileManager, FileNode } from "@/components/WebFileManager";
 
 const platforms = [
   { id: "windows", label: "Windows", icon: Monitor },
@@ -20,6 +21,7 @@ const platforms = [
 const UploadSoftware = () => {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [isPaid, setIsPaid] = useState(false);
+  const [webFiles, setWebFiles] = useState<FileNode[]>([]);
 
   const togglePlatform = (platformId: string) => {
     setSelectedPlatforms((prev) =>
@@ -124,31 +126,17 @@ const UploadSoftware = () => {
                     Upload Details
                   </h3>
 
-                  {/* Web Platform - File Upload */}
+                  {/* Web Platform - File Manager */}
                   {hasWeb && (
-                    <div className="space-y-2">
-                      <Label htmlFor="web-files" className="flex items-center gap-2">
+                    <div className="space-y-3">
+                      <Label className="flex items-center gap-2">
                         <Globe className="w-4 h-4 text-primary" />
-                        Web Platform - Upload Files
+                        Web Platform - File Structure
                       </Label>
-                      <div className="border-2 border-dashed border-border/50 rounded-xl p-8 text-center hover:border-primary/50 transition-colors">
-                        <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                        <p className="text-sm text-muted-foreground mb-2">
-                          Drag & drop your website files here, or click to browse
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          Upload HTML, CSS, JS, and other web files
-                        </p>
-                        <Input
-                          id="web-files"
-                          type="file"
-                          multiple
-                          className="hidden"
-                        />
-                        <Button type="button" variant="outline" size="sm" className="mt-4">
-                          Select Files
-                        </Button>
-                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Organize your web files in folders. Create folders, upload files, or create empty files.
+                      </p>
+                      <WebFileManager files={webFiles} onChange={setWebFiles} />
                     </div>
                   )}
 

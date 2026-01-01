@@ -16,6 +16,10 @@ const navItems = [
   { name: "How to Use", path: "/how-to-use" },
 ];
 
+const ownerNavItems = [
+  { name: "Manage Roles", path: "/role-management" },
+];
+
 const roleIcons = {
   owner: Crown,
   admin: Shield,
@@ -61,6 +65,18 @@ export function Navbar() {
                 className={cn(
                   "nav-link text-sm font-medium",
                   location.pathname === item.path && "text-foreground active"
+                )}
+              >
+                {item.name}
+              </Link>
+            ))}
+            {role === "owner" && ownerNavItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={cn(
+                  "nav-link text-sm font-medium text-yellow-400",
+                  location.pathname === item.path && "text-yellow-300 active"
                 )}
               >
                 {item.name}
@@ -140,6 +156,21 @@ export function Navbar() {
                     location.pathname === item.path
                       ? "bg-muted text-foreground"
                       : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                  )}
+                >
+                  {item.name}
+                </Link>
+              ))}
+              {role === "owner" && ownerNavItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setIsOpen(false)}
+                  className={cn(
+                    "px-4 py-2 rounded-lg text-sm font-medium transition-colors text-yellow-400",
+                    location.pathname === item.path
+                      ? "bg-muted text-yellow-300"
+                      : "hover:bg-muted/50 hover:text-yellow-300"
                   )}
                 >
                   {item.name}

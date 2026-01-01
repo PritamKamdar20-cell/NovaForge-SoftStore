@@ -16,6 +16,7 @@ import ReportIssue from "./pages/ReportIssue";
 import UploadSoftware from "./pages/UploadSoftware";
 import Software from "./pages/Software";
 import Auth from "./pages/Auth";
+import RoleManagement from "./pages/RoleManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/sign-in" element={<Auth />} />
             <Route path="/sign-up" element={<Auth />} />
+            <Route path="/role-management" element={<RoleManagement />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

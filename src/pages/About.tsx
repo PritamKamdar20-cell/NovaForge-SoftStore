@@ -35,7 +35,7 @@ const About = () => {
               About <span className="gradient-text">NovaForge</span>
             </h1>
             <p className="text-lg text-muted-foreground">
-              NovaForge SoftStore is a software marketplace created by NovaForge Studio — 
+              NovaForge SoftStore is a software marketplace created by NovaForge Studeeo — 
               a team of dedicated students from India passionate about making quality software accessible to everyone.
             </p>
           </div>

@@ -21,7 +21,7 @@ export function HeroSection() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/50 border border-border/50 mb-8 animate-fade-in">
             <Sparkles className="w-4 h-4 text-secondary" />
-            <span className="text-sm text-muted-foreground">Created by NovaForge Studio • December 2025</span>
+            <span className="text-sm text-muted-foreground">Created by NovaForge Studeeo • December 2025</span>
           </div>
 
           {/* Heading */}

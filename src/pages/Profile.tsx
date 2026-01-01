@@ -1,7 +1,7 @@
 import { Layout } from "@/components/Layout";
-import { User, Mail, Shield, Package, Download, MessageSquare, Settings } from "lucide-react";
+import { User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Link } from "react-router-dom";
 
 const Profile = () => {
   return (
@@ -28,11 +28,13 @@ const Profile = () => {
               Sign in to access your profile, upload software, manage your content, and connect with the community.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button className="btn-nova text-primary-foreground border-0 px-8">
-                <span className="relative z-10">Sign In</span>
+              <Button className="btn-nova text-primary-foreground border-0 px-8" asChild>
+                <Link to="/sign-in">
+                  <span className="relative z-10">Sign In</span>
+                </Link>
               </Button>
-              <Button variant="outline" className="px-8">
-                Create Account
+              <Button variant="outline" className="px-8" asChild>
+                <Link to="/sign-up">Create Account</Link>
               </Button>
             </div>
           </div>

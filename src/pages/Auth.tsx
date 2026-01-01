@@ -16,9 +16,10 @@ const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string; confirmPassword?: string }>({});
   
   const { user, signIn, signUp } = useAuth();
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ const Auth = () => {
   }, [user, navigate]);
 
   const validateForm = () => {
-    const newErrors: { email?: string; password?: string } = {};
+    const newErrors: { email?: string; password?: string; confirmPassword?: string } = {};
     
     const emailResult = emailSchema.safeParse(email);
     if (!emailResult.success) {
@@ -41,6 +42,10 @@ const Auth = () => {
     const passwordResult = passwordSchema.safeParse(password);
     if (!passwordResult.success) {
       newErrors.password = passwordResult.error.errors[0].message;
+    }
+    
+    if (isSignUp && password !== confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
     }
     
     setErrors(newErrors);
@@ -183,7 +188,7 @@ const Auth = () => {
                     value={password}
                     onChange={(e) => {
                       setPassword(e.target.value);
-                      setErrors((prev) => ({ ...prev, password: undefined }));
+                      setErrors((prev) => ({ ...prev, password: undefined, confirmPassword: undefined }));
                     }}
                     className={`pl-10 bg-muted/50 ${errors.password ? "border-destructive" : ""}`}
                   />
@@ -192,6 +197,29 @@ const Auth = () => {
                   <p className="text-xs text-destructive">{errors.password}</p>
                 )}
               </div>
+
+              {isSignUp && (
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Confirm Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      placeholder="••••••••"
+                      value={confirmPassword}
+                      onChange={(e) => {
+                        setConfirmPassword(e.target.value);
+                        setErrors((prev) => ({ ...prev, confirmPassword: undefined }));
+                      }}
+                      className={`pl-10 bg-muted/50 ${errors.confirmPassword ? "border-destructive" : ""}`}
+                    />
+                  </div>
+                  {errors.confirmPassword && (
+                    <p className="text-xs text-destructive">{errors.confirmPassword}</p>
+                  )}
+                </div>
+              )}
 
               <Button 
                 type="submit" 

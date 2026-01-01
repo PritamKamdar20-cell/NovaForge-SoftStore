@@ -14,6 +14,7 @@ import Profile from "./pages/Profile";
 import HowToUse from "./pages/HowToUse";
 import ReportIssue from "./pages/ReportIssue";
 import UploadSoftware from "./pages/UploadSoftware";
+import Software from "./pages/Software";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -37,6 +38,8 @@ const App = () => (
             <Route path="/how-to-use" element={<HowToUse />} />
             <Route path="/report-issue" element={<ReportIssue />} />
             <Route path="/upload-software" element={<UploadSoftware />} />
+            <Route path="/upload" element={<UploadSoftware />} />
+            <Route path="/software" element={<Software />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/sign-in" element={<Auth />} />
             <Route path="/sign-up" element={<Auth />} />

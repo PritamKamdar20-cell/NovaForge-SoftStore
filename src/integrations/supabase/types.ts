@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      news: {
+        Row: {
+          category: string
+          content: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          image_url: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          content?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          image_url?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          content?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          image_url?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -38,6 +98,141 @@ export type Database = {
           email?: string
           id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      reports: {
+        Row: {
+          contact_email: string | null
+          created_at: string
+          description: string
+          id: string
+          issue_type: string
+          related_url: string | null
+          status: string
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contact_email?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          issue_type: string
+          related_url?: string | null
+          status?: string
+          subject: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contact_email?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          issue_type?: string
+          related_url?: string | null
+          status?: string
+          subject?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      requests: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          platform: string | null
+          software_name: string
+          updated_at: string
+          upvotes: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          platform?: string | null
+          software_name: string
+          updated_at?: string
+          upvotes?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          platform?: string | null
+          software_name?: string
+          updated_at?: string
+          upvotes?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      site_stats: {
+        Row: {
+          id: string
+          total_software: number
+          total_users: number
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          total_software?: number
+          total_users?: number
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          total_software?: number
+          total_users?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      software: {
+        Row: {
+          created_at: string
+          description: string | null
+          download_link: string | null
+          id: string
+          is_paid: boolean
+          name: string
+          platforms: string[]
+          price: number | null
+          updated_at: string
+          user_id: string
+          version: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          download_link?: string | null
+          id?: string
+          is_paid?: boolean
+          name: string
+          platforms?: string[]
+          price?: number | null
+          updated_at?: string
+          user_id: string
+          version?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          download_link?: string | null
+          id?: string
+          is_paid?: boolean
+          name?: string
+          platforms?: string[]
+          price?: number | null
+          updated_at?: string
+          user_id?: string
+          version?: string | null
         }
         Relationships: []
       }

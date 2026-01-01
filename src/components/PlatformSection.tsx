@@ -1,16 +1,45 @@
 import { Monitor, Apple, Laptop, Smartphone, Tablet, Globe, Phone } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const platforms = [
-  { name: "Windows", icon: Monitor, color: "from-blue-500 to-blue-600", count: 0 },
-  { name: "macOS", icon: Apple, color: "from-gray-400 to-gray-500", count: 0 },
-  { name: "Linux", icon: Laptop, color: "from-orange-500 to-orange-600", count: 0 },
-  { name: "Android", icon: Smartphone, color: "from-green-500 to-green-600", count: 0 },
-  { name: "iOS", icon: Tablet, color: "from-purple-500 to-purple-600", count: 0 },
-  { name: "Web", icon: Globe, color: "from-cyan-500 to-cyan-600", count: 0 },
-  { name: "Keypad Mobile", icon: Phone, color: "from-pink-500 to-pink-600", count: 0 },
+  { name: "Windows", icon: Monitor, color: "from-blue-500 to-blue-600", slug: "windows" },
+  { name: "macOS", icon: Apple, color: "from-gray-400 to-gray-500", slug: "mac" },
+  { name: "Linux", icon: Laptop, color: "from-orange-500 to-orange-600", slug: "linux" },
+  { name: "Android", icon: Smartphone, color: "from-green-500 to-green-600", slug: "android" },
+  { name: "iOS", icon: Tablet, color: "from-purple-500 to-purple-600", slug: "ios" },
+  { name: "Web", icon: Globe, color: "from-cyan-500 to-cyan-600", slug: "web" },
+  { name: "Keypad Mobile", icon: Phone, color: "from-pink-500 to-pink-600", slug: "keypad" },
 ];
 
 export function PlatformSection() {
+  const navigate = useNavigate();
+  const [platformCounts, setPlatformCounts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    const fetchCounts = async () => {
+      const { data } = await supabase.from("software").select("platforms");
+      if (data) {
+        const counts: Record<string, number> = {};
+        platforms.forEach(p => counts[p.slug] = 0);
+        data.forEach(software => {
+          software.platforms?.forEach((platform: string) => {
+            if (counts[platform] !== undefined) {
+              counts[platform]++;
+            }
+          });
+        });
+        setPlatformCounts(counts);
+      }
+    };
+    fetchCounts();
+  }, []);
+
+  const handlePlatformClick = (slug: string) => {
+    navigate(`/software?platform=${slug}`);
+  };
+
   return (
     <section className="py-20 relative overflow-hidden">
       {/* Background */}
@@ -32,6 +61,7 @@ export function PlatformSection() {
           {platforms.map((platform, index) => (
             <div
               key={platform.name}
+              onClick={() => handlePlatformClick(platform.slug)}
               className="group relative p-6 rounded-2xl bg-card/50 border border-border/30 hover:border-primary/50 transition-all duration-300 cursor-pointer hover:scale-105 animate-fade-in"
               style={{ animationDelay: `${index * 0.05}s` }}
             >
@@ -50,7 +80,7 @@ export function PlatformSection() {
 
               {/* Count */}
               <p className="text-xs text-muted-foreground text-center">
-                {platform.count} apps
+                {platformCounts[platform.slug] || 0} apps
               </p>
             </div>
           ))}

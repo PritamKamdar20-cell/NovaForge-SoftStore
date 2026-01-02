@@ -17,6 +17,7 @@ import UploadSoftware from "./pages/UploadSoftware";
 import Software from "./pages/Software";
 import Auth from "./pages/Auth";
 import RoleManagement from "./pages/RoleManagement";
+import RazorpaySetup from "./pages/RazorpaySetup";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -45,6 +46,7 @@ const App = () => (
             <Route path="/sign-in" element={<Auth />} />
             <Route path="/sign-up" element={<Auth />} />
             <Route path="/role-management" element={<RoleManagement />} />
+            <Route path="/razorpay-setup" element={<RazorpaySetup />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

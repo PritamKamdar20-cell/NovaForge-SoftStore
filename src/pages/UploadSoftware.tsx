@@ -1,5 +1,5 @@
 import { Layout } from "@/components/Layout";
-import { Upload, Link as LinkIcon, Globe, Monitor, Apple, Smartphone, Tablet, Gamepad2, Info } from "lucide-react";
+import { Upload, Link as LinkIcon, Globe, Monitor, Apple, Smartphone, Tablet, Gamepad2, Info, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,6 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
 import { WebFileManager, FileNode } from "@/components/WebFileManager";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate, Link } from "react-router-dom";
 
 const platforms = [
   { id: "windows", label: "Windows", icon: Monitor },
@@ -19,9 +23,49 @@ const platforms = [
 ];
 
 const UploadSoftware = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [version, setVersion] = useState("");
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
+  const [downloadLink, setDownloadLink] = useState("");
   const [isPaid, setIsPaid] = useState(false);
+  const [price, setPrice] = useState("");
   const [webFiles, setWebFiles] = useState<FileNode[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasRazorpay, setHasRazorpay] = useState<boolean | null>(null);
+
+  // Check if user has Razorpay setup when they try to set paid
+  const checkRazorpaySetup = async () => {
+    if (!user) return false;
+    
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("razorpay_setup_complete")
+      .eq("id", user.id)
+      .maybeSingle();
+    
+    if (error || !data) return false;
+    return data.razorpay_setup_complete;
+  };
+
+  const handlePaidChange = async (paid: boolean) => {
+    if (paid) {
+      const hasSetup = await checkRazorpaySetup();
+      setHasRazorpay(hasSetup);
+      if (!hasSetup) {
+        toast({
+          title: "Razorpay Setup Required",
+          description: "Please set up your Razorpay gateway in your profile to sell paid software.",
+          variant: "destructive",
+        });
+      }
+    }
+    setIsPaid(paid);
+  };
 
   const togglePlatform = (platformId: string) => {
     setSelectedPlatforms((prev) =>
@@ -31,9 +75,119 @@ const UploadSoftware = () => {
     );
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!user) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to upload software.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!name.trim()) {
+      toast({
+        title: "Name required",
+        description: "Please enter a software name.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (selectedPlatforms.length === 0) {
+      toast({
+        title: "Platform required",
+        description: "Please select at least one platform.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (isPaid) {
+      const hasSetup = await checkRazorpaySetup();
+      if (!hasSetup) {
+        toast({
+          title: "Razorpay Setup Required",
+          description: "Please set up your Razorpay gateway in your profile first.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!price || parseFloat(price) <= 0) {
+        toast({
+          title: "Price required",
+          description: "Please enter a valid price for paid software.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const { error } = await supabase.from("software").insert({
+        user_id: user.id,
+        name: name.trim(),
+        description: description.trim() || null,
+        version: version.trim() || null,
+        platforms: selectedPlatforms,
+        download_link: downloadLink.trim() || null,
+        is_paid: isPaid,
+        price: isPaid ? parseFloat(price) : null,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Success!",
+        description: "Your software has been uploaded successfully.",
+      });
+
+      navigate("/software");
+    } catch (error: any) {
+      console.error("Upload error:", error);
+      toast({
+        title: "Upload failed",
+        description: error.message || "Failed to upload software. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const isWebOnly = selectedPlatforms.length === 1 && selectedPlatforms.includes("web");
   const hasWeb = selectedPlatforms.includes("web");
   const hasOtherPlatforms = selectedPlatforms.some((p) => p !== "web");
+
+  if (!user) {
+    return (
+      <Layout>
+        <section className="pt-32 pb-20">
+          <div className="container px-4 max-w-3xl mx-auto">
+            <div className="glass-card p-8 text-center">
+              <AlertTriangle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold mb-2">Sign In Required</h2>
+              <p className="text-muted-foreground mb-6">
+                Please sign in to upload software to NovaForge.
+              </p>
+              <Button asChild className="btn-nova text-primary-foreground border-0">
+                <Link to="/auth">
+                  <span className="relative z-10">Sign In</span>
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -54,14 +208,17 @@ const UploadSoftware = () => {
 
           {/* Upload Form */}
           <div className="glass-card p-8">
-            <form className="space-y-8">
+            <form onSubmit={handleSubmit} className="space-y-8">
               {/* Software Name */}
               <div className="space-y-2">
-                <Label htmlFor="name">Software Name</Label>
+                <Label htmlFor="name">Software Name *</Label>
                 <Input
                   id="name"
                   placeholder="Enter your software name"
                   className="bg-muted/50"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
                 />
               </div>
 
@@ -72,6 +229,8 @@ const UploadSoftware = () => {
                   id="description"
                   placeholder="Describe what your software does, its features, and requirements..."
                   className="bg-muted/50 min-h-[120px]"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                 />
               </div>
 
@@ -82,12 +241,14 @@ const UploadSoftware = () => {
                   id="version"
                   placeholder="e.g., 1.0.0"
                   className="bg-muted/50"
+                  value={version}
+                  onChange={(e) => setVersion(e.target.value)}
                 />
               </div>
 
               {/* Platform Selection */}
               <div className="space-y-4">
-                <Label className="text-base font-semibold">Select Platforms</Label>
+                <Label className="text-base font-semibold">Select Platforms *</Label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                   {platforms.map((platform) => (
                     <Label
@@ -145,12 +306,14 @@ const UploadSoftware = () => {
                     <div className="space-y-2">
                       <Label htmlFor="download-link" className="flex items-center gap-2">
                         <LinkIcon className="w-4 h-4 text-primary" />
-                        Download Link (Cloud Share)
+                        Download Link (Cloud Share) *
                       </Label>
                       <Input
                         id="download-link"
                         placeholder="e.g., Google Drive, Dropbox, OneDrive link"
                         className="bg-muted/50"
+                        value={downloadLink}
+                        onChange={(e) => setDownloadLink(e.target.value)}
                       />
                       <p className="text-xs text-muted-foreground">
                         Provide a cloud share link for {selectedPlatforms.filter(p => p !== "web").map(p =>
@@ -177,7 +340,7 @@ const UploadSoftware = () => {
                       id="free"
                       name="pricing"
                       checked={!isPaid}
-                      onChange={() => setIsPaid(false)}
+                      onChange={() => handlePaidChange(false)}
                       className="sr-only"
                     />
                     <span className={!isPaid ? "text-foreground font-medium" : "text-muted-foreground"}>
@@ -195,7 +358,7 @@ const UploadSoftware = () => {
                       id="paid"
                       name="pricing"
                       checked={isPaid}
-                      onChange={() => setIsPaid(true)}
+                      onChange={() => handlePaidChange(true)}
                       className="sr-only"
                     />
                     <span className={isPaid ? "text-foreground font-medium" : "text-muted-foreground"}>
@@ -206,25 +369,47 @@ const UploadSoftware = () => {
 
                 {isPaid && (
                   <div className="space-y-2">
-                    <Label htmlFor="price">Price (₹)</Label>
+                    {hasRazorpay === false && (
+                      <div className="p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/30 mb-4">
+                        <p className="text-sm text-yellow-400 flex items-start gap-2">
+                          <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+                          <span>
+                            You need to set up Razorpay in your{" "}
+                            <Link to="/profile" className="underline font-medium">
+                              profile
+                            </Link>{" "}
+                            before selling paid software.
+                          </span>
+                        </p>
+                      </div>
+                    )}
+                    <Label htmlFor="price">Price (₹) *</Label>
                     <Input
                       id="price"
                       type="number"
                       placeholder="Enter price in INR"
                       className="bg-muted/50"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                      min="1"
+                      step="1"
                     />
                     <p className="text-xs text-muted-foreground flex items-start gap-1">
                       <Info className="w-3 h-3 mt-0.5 shrink-0" />
-                      Payments are processed via Razorpay. One-time setup required for your profile.
+                      Payments are processed via Razorpay. One-time setup required in your profile.
                     </p>
                   </div>
                 )}
               </div>
 
               {/* Submit */}
-              <Button type="submit" className="w-full btn-nova text-primary-foreground border-0">
+              <Button 
+                type="submit" 
+                className="w-full btn-nova text-primary-foreground border-0"
+                disabled={isSubmitting}
+              >
                 <span className="relative z-10 flex items-center gap-2">
-                  Upload Software
+                  {isSubmitting ? "Uploading..." : "Upload Software"}
                   <Upload className="w-4 h-4" />
                 </span>
               </Button>

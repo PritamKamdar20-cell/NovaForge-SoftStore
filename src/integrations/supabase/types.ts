@@ -85,6 +85,9 @@ export type Database = {
           email: string
           id: string
           is_banned: boolean
+          razorpay_key_id: string | null
+          razorpay_key_secret: string | null
+          razorpay_setup_complete: boolean
           updated_at: string
         }
         Insert: {
@@ -97,6 +100,9 @@ export type Database = {
           email: string
           id: string
           is_banned?: boolean
+          razorpay_key_id?: string | null
+          razorpay_key_secret?: string | null
+          razorpay_setup_complete?: boolean
           updated_at?: string
         }
         Update: {
@@ -109,6 +115,9 @@ export type Database = {
           email?: string
           id?: string
           is_banned?: boolean
+          razorpay_key_id?: string | null
+          razorpay_key_secret?: string | null
+          razorpay_setup_complete?: boolean
           updated_at?: string
         }
         Relationships: []

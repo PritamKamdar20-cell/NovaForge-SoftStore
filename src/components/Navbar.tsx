@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, User, LogIn, LogOut, Crown, Shield, Wrench } from "lucide-react";
+import { Menu, X, User, LogIn, LogOut, Crown, Shield, Wrench, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
 
 const navItems = [
+  { name: "Software", path: "/software" },
   { name: "News", path: "/news" },
   { name: "About", path: "/about" },
   { name: "Comment", path: "/comments" },

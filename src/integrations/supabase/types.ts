@@ -197,18 +197,21 @@ export type Database = {
       site_stats: {
         Row: {
           id: string
+          total_downloads: number
           total_software: number
           total_users: number
           updated_at: string
         }
         Insert: {
           id?: string
+          total_downloads?: number
           total_software?: number
           total_users?: number
           updated_at?: string
         }
         Update: {
           id?: string
+          total_downloads?: number
           total_software?: number
           total_users?: number
           updated_at?: string
@@ -294,6 +297,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_download_count: { Args: never; Returns: undefined }
       is_first_user: { Args: never; Returns: boolean }
       is_user_banned: { Args: { _user_id: string }; Returns: boolean }
     }

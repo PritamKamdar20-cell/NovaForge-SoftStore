@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { ConfirmDeleteDialog } from "@/components/ConfirmDeleteDialog";
 import { useToast } from "@/hooks/use-toast";
+import { useSiteStats } from "@/hooks/useSiteStats";
 import { Monitor, Apple, Laptop, Smartphone, Tablet, Globe, Phone, Download, Trash2, Package, Search, Upload } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -50,6 +51,7 @@ const Software = () => {
   const platform = searchParams.get("platform");
   const { user, role } = useAuth();
   const { toast } = useToast();
+  const { stats: siteStats, refetch: refetchSiteStats } = useSiteStats();
   
   const [software, setSoftware] = useState<Software[]>([]);
   const [loading, setLoading] = useState(true);
@@ -155,6 +157,9 @@ const Software = () => {
                 : "Browse all software across all platforms"
               }
             </p>
+            <p className="text-sm text-muted-foreground mt-2">
+              Totals: {siteStats?.total_software ?? 0} software • {siteStats?.total_users ?? 0} users • {siteStats?.total_downloads ?? 0} downloads
+            </p>
             <div className="flex flex-wrap gap-3 mt-4 justify-center">
               {platform && (
                 <Button 
@@ -257,10 +262,10 @@ const Software = () => {
                       <Button 
                         size="sm" 
                         className="flex-1 btn-nova text-primary-foreground border-0"
-                        onClick={async () => {
-                          // Increment download count
-                          await supabase.rpc('increment_download_count');
+                        onClick={() => {
+                          // Open first (avoids popup blockers), then increment stats
                           window.open(item.download_link!, "_blank");
+                          supabase.rpc("increment_download_count").then(() => refetchSiteStats());
                         }}
                       >
                         <span className="relative z-10 flex items-center gap-1">

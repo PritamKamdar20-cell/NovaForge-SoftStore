@@ -1,4 +1,4 @@
-import { Monitor, Apple, Laptop, Smartphone, Tablet, Globe, Phone } from "lucide-react";
+import { Monitor, Apple, Laptop, Smartphone, Tablet, Globe, Phone, Tv } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +11,7 @@ const platforms = [
   { name: "iOS", icon: Tablet, color: "from-purple-500 to-purple-600", slug: "ios" },
   { name: "Web", icon: Globe, color: "from-cyan-500 to-cyan-600", slug: "web" },
   { name: "Keypad Mobile", icon: Phone, color: "from-pink-500 to-pink-600", slug: "keypad" },
+  { name: "Android TV", icon: Tv, color: "from-teal-500 to-teal-600", slug: "androidtv" },
 ];
 
 export function PlatformSection() {
@@ -66,7 +67,7 @@ export function PlatformSection() {
         {/* Section Header */}
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-            7 Platforms, <span className="gradient-text">One Store</span>
+            8 Platforms, <span className="gradient-text">One Store</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Find software for every device you own. From desktop to mobile, we've got you covered.
@@ -74,7 +75,7 @@ export function PlatformSection() {
         </div>
 
         {/* Platform Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4">
           {platforms.map((platform, index) => (
             <div
               key={platform.name}

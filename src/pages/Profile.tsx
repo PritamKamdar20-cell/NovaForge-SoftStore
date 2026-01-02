@@ -1,5 +1,5 @@
 import { Layout } from "@/components/Layout";
-import { User, Mail, Crown, Shield, Wrench, Package, MessageSquare, AlertTriangle, Settings } from "lucide-react";
+import { User, Mail, Crown, Shield, Wrench, Package, MessageSquare, AlertTriangle, Settings, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -123,6 +123,29 @@ const Profile = () => {
                   <p className="text-xs text-muted-foreground">
                     {currentRole === "helper" ? "Report all issues" : "Report bugs"}
                   </p>
+                </Link>
+              </div>
+
+              {/* Razorpay Setup */}
+              <div className="mt-8">
+                <Link 
+                  to="/razorpay-setup" 
+                  className="block glass-card p-6 hover:border-primary/50 transition-colors"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 flex items-center justify-center">
+                      <CreditCard className="w-6 h-6 text-blue-400" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold">Razorpay Payment Setup</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Configure your payment gateway to sell software (optional)
+                      </p>
+                    </div>
+                    <Badge variant="outline" className="text-xs">
+                      Optional
+                    </Badge>
+                  </div>
                 </Link>
               </div>
 

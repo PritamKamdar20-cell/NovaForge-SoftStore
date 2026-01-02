@@ -1,13 +1,14 @@
 import { Layout } from "@/components/Layout";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, User, Crown, Wrench, Users, Ban, Check } from "lucide-react";
+import { Shield, User, Crown, Wrench, Users, Ban, Check, Search } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -49,7 +50,19 @@ const RoleManagement = () => {
   const [banTarget, setBanTarget] = useState<UserWithRole | null>(null);
   const [banReason, setBanReason] = useState("");
   const [banningUserId, setBanningUserId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
+  // Filter users based on search query
+  const filteredUsers = useMemo(() => {
+    if (!searchQuery.trim()) return users;
+    const query = searchQuery.toLowerCase();
+    return users.filter(
+      (u) =>
+        u.email.toLowerCase().includes(query) ||
+        u.display_name?.toLowerCase().includes(query) ||
+        u.role.toLowerCase().includes(query)
+    );
+  }, [users, searchQuery]);
   const fetchUsers = async () => {
     setLoading(true);
     
@@ -265,18 +278,36 @@ const RoleManagement = () => {
             })}
           </div>
 
+          {/* Search Bar */}
+          <div className="max-w-md mx-auto mb-8">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search users by name, email, or role..."
+                className="pl-10 bg-muted/50"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </div>
+
           {/* Users List */}
-          {users.length === 0 ? (
+          {filteredUsers.length === 0 ? (
             <div className="text-center py-16 glass-card max-w-md mx-auto">
               <Users className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">No Users Found</h3>
+              <h3 className="text-xl font-semibold mb-2">
+                {searchQuery ? "No Results Found" : "No Users Found"}
+              </h3>
               <p className="text-muted-foreground">
-                There are no users to manage yet.
+                {searchQuery 
+                  ? `No users match "${searchQuery}"`
+                  : "There are no users to manage yet."
+                }
               </p>
             </div>
           ) : (
             <div className="max-w-4xl mx-auto space-y-4">
-              {users.map((userItem) => {
+              {filteredUsers.map((userItem) => {
                 const config = ROLE_CONFIG[userItem.role];
                 const Icon = config.icon;
                 const isCurrentUser = userItem.id === user?.id;

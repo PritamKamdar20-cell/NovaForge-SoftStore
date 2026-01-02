@@ -257,7 +257,11 @@ const Software = () => {
                       <Button 
                         size="sm" 
                         className="flex-1 btn-nova text-primary-foreground border-0"
-                        onClick={() => window.open(item.download_link!, "_blank")}
+                        onClick={async () => {
+                          // Increment download count
+                          await supabase.rpc('increment_download_count');
+                          window.open(item.download_link!, "_blank");
+                        }}
                       >
                         <span className="relative z-10 flex items-center gap-1">
                           <Download className="w-4 h-4" />

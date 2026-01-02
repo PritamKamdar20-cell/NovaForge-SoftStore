@@ -1,9 +1,13 @@
+import { useState } from "react";
 import { Layout } from "@/components/Layout";
-import { User, Mail, Crown, Shield, Wrench, Package, MessageSquare, AlertTriangle, Settings, CreditCard } from "lucide-react";
+import { User, Mail, Crown, Shield, Wrench, Package, MessageSquare, AlertTriangle, Settings, CreditCard, Key } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
+import { PasswordInput } from "@/components/PasswordInput";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const roleConfig = {
   owner: { 
@@ -34,6 +38,97 @@ const roleConfig = {
 
 const Profile = () => {
   const { user, role, loading, signOut } = useAuth();
+  const { toast } = useToast();
+  const [showPasswordChange, setShowPasswordChange] = useState(false);
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [passwordLoading, setPasswordLoading] = useState(false);
+
+  const handleChangePassword = async () => {
+    if (newPassword.length < 6) {
+      toast({
+        title: "Password too short",
+        description: "New password must be at least 6 characters.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      toast({
+        title: "Passwords don't match",
+        description: "Please make sure both passwords are the same.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setPasswordLoading(true);
+
+    // First verify old password by re-authenticating
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: user?.email || "",
+      password: oldPassword,
+    });
+
+    if (signInError) {
+      setPasswordLoading(false);
+      toast({
+        title: "Incorrect old password",
+        description: "Please enter your current password correctly.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Update to new password
+    const { error: updateError } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+
+    setPasswordLoading(false);
+
+    if (updateError) {
+      toast({
+        title: "Error updating password",
+        description: updateError.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Password updated!",
+        description: "Your password has been changed successfully.",
+      });
+      setShowPasswordChange(false);
+      setOldPassword("");
+      setNewPassword("");
+      setConfirmNewPassword("");
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!user?.email) return;
+    
+    setPasswordLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setPasswordLoading(false);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Check your email",
+        description: "We've sent you a password reset link.",
+      });
+    }
+  };
 
   if (loading) {
     return (
@@ -124,6 +219,76 @@ const Profile = () => {
                     {currentRole === "helper" ? "Report all issues" : "Report bugs"}
                   </p>
                 </Link>
+              </div>
+
+              {/* Change Password Section */}
+              <div className="mt-8">
+                <div className="glass-card p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/20 to-red-500/20 flex items-center justify-center">
+                        <Key className="w-6 h-6 text-orange-400" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold">Change Password</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Update your password using old password or email link
+                        </p>
+                      </div>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setShowPasswordChange(!showPasswordChange)}
+                    >
+                      {showPasswordChange ? "Cancel" : "Change"}
+                    </Button>
+                  </div>
+
+                  {showPasswordChange && (
+                    <div className="space-y-4 pt-4 border-t border-border/50">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Old Password</label>
+                        <PasswordInput
+                          value={oldPassword}
+                          onChange={(e) => setOldPassword(e.target.value)}
+                          placeholder="Enter current password"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">New Password</label>
+                        <PasswordInput
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          placeholder="Enter new password"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Confirm New Password</label>
+                        <PasswordInput
+                          value={confirmNewPassword}
+                          onChange={(e) => setConfirmNewPassword(e.target.value)}
+                          placeholder="Confirm new password"
+                        />
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <Button 
+                          onClick={handleChangePassword}
+                          className="btn-nova text-primary-foreground border-0"
+                          disabled={passwordLoading}
+                        >
+                          {passwordLoading ? "Updating..." : "Update Password"}
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          onClick={handleForgotPassword}
+                          disabled={passwordLoading}
+                        >
+                          Send Reset Link Instead
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Razorpay Setup */}

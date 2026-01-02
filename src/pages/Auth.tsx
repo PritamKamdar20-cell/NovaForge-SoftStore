@@ -162,7 +162,7 @@ const Auth = () => {
             </p>
             {isSignUp && (
               <p className="text-sm text-primary mt-2">
-                ✨ First user becomes the Owner!
+                ✨ Join Fast !
               </p>
             )}
           </div>

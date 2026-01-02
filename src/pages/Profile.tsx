@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Layout } from "@/components/Layout";
-import { User, Mail, Crown, Shield, Wrench, Package, MessageSquare, AlertTriangle, Settings, CreditCard, Key } from "lucide-react";
+import { User, Mail, Crown, Shield, Wrench, Package, MessageSquare, AlertTriangle, Settings, CreditCard, Key, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
@@ -40,10 +41,33 @@ const Profile = () => {
   const { user, role, loading, signOut } = useAuth();
   const { toast } = useToast();
   const [showPasswordChange, setShowPasswordChange] = useState(false);
+  const [showProfileEdit, setShowProfileEdit] = useState(false);
+  const [showEmailChange, setShowEmailChange] = useState(false);
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [passwordLoading, setPasswordLoading] = useState(false);
+  const [displayName, setDisplayName] = useState("");
+  const [newEmail, setNewEmail] = useState("");
+  const [profileLoading, setProfileLoading] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      fetchProfile();
+    }
+  }, [user]);
+
+  const fetchProfile = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("profiles")
+      .select("display_name")
+      .eq("id", user.id)
+      .maybeSingle();
+    if (data?.display_name) {
+      setDisplayName(data.display_name);
+    }
+  };
 
   const handleChangePassword = async () => {
     if (newPassword.length < 6) {
@@ -130,6 +154,63 @@ const Profile = () => {
     }
   };
 
+  const handleUpdateProfile = async () => {
+    if (!user) return;
+
+    setProfileLoading(true);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ display_name: displayName.trim() || null })
+      .eq("id", user.id);
+    setProfileLoading(false);
+
+    if (error) {
+      toast({
+        title: "Error updating profile",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Profile updated!",
+        description: "Your display name has been updated.",
+      });
+      setShowProfileEdit(false);
+    }
+  };
+
+  const handleChangeEmail = async () => {
+    if (!newEmail.trim()) {
+      toast({
+        title: "Email required",
+        description: "Please enter a new email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setProfileLoading(true);
+    const { error } = await supabase.auth.updateUser({
+      email: newEmail.trim(),
+    });
+    setProfileLoading(false);
+
+    if (error) {
+      toast({
+        title: "Error changing email",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Verification email sent!",
+        description: "Please check both your old and new email to confirm the change.",
+      });
+      setShowEmailChange(false);
+      setNewEmail("");
+    }
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -173,7 +254,7 @@ const Profile = () => {
                   </div>
                   <div className="text-center md:text-left flex-1">
                     <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
-                      <h2 className="text-2xl font-bold">{user.email?.split("@")[0]}</h2>
+                      <h2 className="text-2xl font-bold">{displayName || user.email?.split("@")[0]}</h2>
                       <Badge 
                         className={`bg-gradient-to-r ${roleConfig[currentRole].gradient} text-white border-0 capitalize`}
                       >
@@ -192,6 +273,110 @@ const Profile = () => {
                   <Button variant="outline" onClick={signOut}>
                     Sign Out
                   </Button>
+                </div>
+              </div>
+
+              {/* Edit Profile Section */}
+              <div className="mt-8">
+                <div className="glass-card p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center">
+                        <Pencil className="w-6 h-6 text-green-400" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold">Edit Profile</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Update your display name
+                        </p>
+                      </div>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setShowProfileEdit(!showProfileEdit)}
+                    >
+                      {showProfileEdit ? "Cancel" : "Edit"}
+                    </Button>
+                  </div>
+
+                  {showProfileEdit && (
+                    <div className="space-y-4 pt-4 border-t border-border/50">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Display Name</label>
+                        <Input
+                          value={displayName}
+                          onChange={(e) => setDisplayName(e.target.value)}
+                          placeholder="Enter your display name"
+                          className="bg-muted/50"
+                        />
+                      </div>
+                      <Button 
+                        onClick={handleUpdateProfile}
+                        className="btn-nova text-primary-foreground border-0"
+                        disabled={profileLoading}
+                      >
+                        {profileLoading ? "Saving..." : "Save Changes"}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Change Email Section */}
+              <div className="mt-4">
+                <div className="glass-card p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center">
+                        <Mail className="w-6 h-6 text-purple-400" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold">Change Email</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Update your email address (requires verification)
+                        </p>
+                      </div>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setShowEmailChange(!showEmailChange)}
+                    >
+                      {showEmailChange ? "Cancel" : "Change"}
+                    </Button>
+                  </div>
+
+                  {showEmailChange && (
+                    <div className="space-y-4 pt-4 border-t border-border/50">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Current Email</label>
+                        <Input
+                          value={user.email || ""}
+                          disabled
+                          className="bg-muted/30"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">New Email</label>
+                        <Input
+                          type="email"
+                          value={newEmail}
+                          onChange={(e) => setNewEmail(e.target.value)}
+                          placeholder="Enter new email address"
+                          className="bg-muted/50"
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        You will receive a verification link on both your old and new email addresses.
+                      </p>
+                      <Button 
+                        onClick={handleChangeEmail}
+                        className="btn-nova text-primary-foreground border-0"
+                        disabled={profileLoading}
+                      >
+                        {profileLoading ? "Sending..." : "Send Verification"}
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
 

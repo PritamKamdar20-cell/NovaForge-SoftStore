@@ -1,5 +1,5 @@
 import { Layout } from "@/components/Layout";
-import { Upload, Link as LinkIcon, Globe, Monitor, Apple, Smartphone, Tablet, Gamepad2, Info, AlertTriangle } from "lucide-react";
+import { Upload, Link as LinkIcon, Globe, Monitor, Apple, Smartphone, Tablet, Gamepad2, Info, AlertTriangle, Tv } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,6 +19,7 @@ const platforms = [
   { id: "android", label: "Android", icon: Smartphone },
   { id: "ios", label: "iOS", icon: Tablet },
   { id: "keypad", label: "Keypad Mobile", icon: Gamepad2 },
+  { id: "androidtv", label: "Android TV", icon: Tv },
   { id: "web", label: "Web (Play Online)", icon: Globe },
 ];
 

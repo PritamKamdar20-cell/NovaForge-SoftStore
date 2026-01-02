@@ -1,14 +1,16 @@
 import { ArrowRight, Download, Sparkles, Users, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-
-const stats = [
-  { icon: Users, label: "Users", value: "0", suffix: "+" },
-  { icon: Package, label: "Software", value: "0", suffix: "" },
-  { icon: Download, label: "Downloads", value: "0", suffix: "+" },
-];
+import { useSiteStats } from "@/hooks/useSiteStats";
 
 export function HeroSection() {
+  const { stats } = useSiteStats();
+
+  const tiles = [
+    { icon: Users, label: "Users", value: stats?.total_users ?? 0, suffix: "+" },
+    { icon: Package, label: "Software", value: stats?.total_software ?? 0, suffix: "" },
+    { icon: Download, label: "Downloads", value: stats?.total_downloads ?? 0, suffix: "+" },
+  ];
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
       {/* Background Elements */}
@@ -54,7 +56,7 @@ export function HeroSection() {
 
           {/* Stats */}
           <div className="grid grid-cols-3 gap-4 sm:gap-8 max-w-lg mx-auto animate-fade-in" style={{ animationDelay: "0.4s" }}>
-            {stats.map((stat) => (
+            {tiles.map((stat) => (
               <div key={stat.label} className="stat-card text-center">
                 <stat.icon className="w-6 h-6 text-primary mx-auto mb-2" />
                 <div className="text-2xl sm:text-3xl font-bold gradient-text">

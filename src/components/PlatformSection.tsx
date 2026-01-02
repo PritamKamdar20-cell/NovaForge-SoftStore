@@ -18,22 +18,39 @@ export function PlatformSection() {
   const [platformCounts, setPlatformCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
+    let mounted = true;
+
     const fetchCounts = async () => {
-      const { data } = await supabase.from("software").select("platforms");
-      if (data) {
-        const counts: Record<string, number> = {};
-        platforms.forEach(p => counts[p.slug] = 0);
-        data.forEach(software => {
-          software.platforms?.forEach((platform: string) => {
-            if (counts[platform] !== undefined) {
-              counts[platform]++;
-            }
-          });
-        });
-        setPlatformCounts(counts);
+      const { data, error } = await supabase.from("software").select("platforms");
+      if (error) {
+        console.error("Error fetching platform counts:", error);
+        return;
       }
+      if (!data || !mounted) return;
+
+      const counts: Record<string, number> = {};
+      platforms.forEach((p) => (counts[p.slug] = 0));
+      data.forEach((software) => {
+        software.platforms?.forEach((platform: string) => {
+          if (counts[platform] !== undefined) counts[platform]++;
+        });
+      });
+      setPlatformCounts(counts);
     };
+
+    // Initial load
     fetchCounts();
+
+    // Refresh when user returns to the tab or focuses window (common after delete)
+    const onFocus = () => fetchCounts();
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onFocus);
+
+    return () => {
+      mounted = false;
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onFocus);
+    };
   }, []);
 
   const handlePlatformClick = (slug: string) => {

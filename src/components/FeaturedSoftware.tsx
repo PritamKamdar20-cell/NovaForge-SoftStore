@@ -1,6 +1,7 @@
 import { Download, Star, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
 
 const platformColors: Record<string, string> = {
   Windows: "bg-blue-500/20 text-blue-400 border-blue-500/30",
@@ -10,11 +11,14 @@ const platformColors: Record<string, string> = {
   iOS: "bg-purple-500/20 text-purple-400 border-purple-500/30",
   Web: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
   Mobile: "bg-pink-500/20 text-pink-400 border-pink-500/30",
+  "Android TV": "bg-teal-500/20 text-teal-400 border-teal-500/30",
 };
 
 const featuredSoftware: any[] = [];
 
 export function FeaturedSoftware() {
+  const navigate = useNavigate();
+
   if (featuredSoftware.length === 0) {
     return (
       <section className="py-20 relative">
@@ -39,7 +43,10 @@ export function FeaturedSoftware() {
             <p className="text-muted-foreground mb-6">
               Be the first to upload software to NovaForge SoftStore!
             </p>
-            <Button className="btn-nova text-primary-foreground border-0">
+            <Button 
+              className="btn-nova text-primary-foreground border-0"
+              onClick={() => navigate("/upload")}
+            >
               <span className="relative z-10">Upload Software</span>
             </Button>
           </div>

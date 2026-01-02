@@ -220,6 +220,7 @@ export type Database = {
       }
       software: {
         Row: {
+          company_name: string | null
           created_at: string
           description: string | null
           download_link: string | null
@@ -233,6 +234,7 @@ export type Database = {
           version: string | null
         }
         Insert: {
+          company_name?: string | null
           created_at?: string
           description?: string | null
           download_link?: string | null
@@ -246,6 +248,7 @@ export type Database = {
           version?: string | null
         }
         Update: {
+          company_name?: string | null
           created_at?: string
           description?: string | null
           download_link?: string | null

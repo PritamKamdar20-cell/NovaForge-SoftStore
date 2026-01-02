@@ -29,6 +29,7 @@ const UploadSoftware = () => {
   const navigate = useNavigate();
 
   const [name, setName] = useState("");
+  const [companyName, setCompanyName] = useState("");
   const [description, setDescription] = useState("");
   const [version, setVersion] = useState("");
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
@@ -133,6 +134,7 @@ const UploadSoftware = () => {
       const { error } = await supabase.from("software").insert({
         user_id: user.id,
         name: name.trim(),
+        company_name: companyName.trim() || null,
         description: description.trim() || null,
         version: version.trim() || null,
         platforms: selectedPlatforms,
@@ -220,6 +222,18 @@ const UploadSoftware = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
+                />
+              </div>
+
+              {/* Company/Corporation Name */}
+              <div className="space-y-2">
+                <Label htmlFor="companyName">Company / Corporation Name</Label>
+                <Input
+                  id="companyName"
+                  placeholder="Enter company or developer name"
+                  className="bg-muted/50"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
                 />
               </div>
 

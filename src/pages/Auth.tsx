@@ -4,8 +4,10 @@ import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PasswordInput } from "@/components/PasswordInput";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { Mail, Lock, User, Loader2, Sparkles } from "lucide-react";
 import { z } from "zod";
 
@@ -19,11 +21,40 @@ const Auth = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; confirmPassword?: string }>({});
   
   const { user, signIn, signUp } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const handleForgotPassword = async () => {
+    const emailResult = emailSchema.safeParse(email);
+    if (!emailResult.success) {
+      setErrors({ email: emailResult.error.errors[0].message });
+      return;
+    }
+
+    setIsLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth`,
+    });
+    setIsLoading(false);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Check your email",
+        description: "We've sent you a password reset link.",
+      });
+      setIsForgotPassword(false);
+    }
+  };
 
   useEffect(() => {
     if (user) {
@@ -180,10 +211,9 @@ const Auth = () => {
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
+                  <PasswordInput
                     id="password"
-                    type="password"
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => {
@@ -202,10 +232,9 @@ const Auth = () => {
                 <div className="space-y-2">
                   <Label htmlFor="confirmPassword">Confirm Password</Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
+                    <PasswordInput
                       id="confirmPassword"
-                      type="password"
                       placeholder="••••••••"
                       value={confirmPassword}
                       onChange={(e) => {
@@ -221,16 +250,52 @@ const Auth = () => {
                 </div>
               )}
 
-              <Button 
-                type="submit" 
-                className="w-full btn-nova text-primary-foreground border-0"
-                disabled={isLoading}
-              >
-                <span className="relative z-10 flex items-center gap-2">
-                  {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {isSignUp ? "Create Account" : "Sign In"}
-                </span>
-              </Button>
+              {!isSignUp && !isForgotPassword && (
+                <div className="text-right">
+                  <button
+                    type="button"
+                    onClick={() => setIsForgotPassword(true)}
+                    className="text-sm text-primary hover:underline"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+              )}
+
+              {isForgotPassword ? (
+                <div className="space-y-4">
+                  <Button 
+                    type="button"
+                    onClick={handleForgotPassword}
+                    className="w-full btn-nova text-primary-foreground border-0"
+                    disabled={isLoading}
+                  >
+                    <span className="relative z-10 flex items-center gap-2">
+                      {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                      Send Reset Link
+                    </span>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => setIsForgotPassword(false)}
+                    className="w-full"
+                  >
+                    Back to Sign In
+                  </Button>
+                </div>
+              ) : (
+                <Button 
+                  type="submit" 
+                  className="w-full btn-nova text-primary-foreground border-0"
+                  disabled={isLoading}
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                    {isSignUp ? "Create Account" : "Sign In"}
+                  </span>
+                </Button>
+              )}
             </form>
 
             <div className="mt-6 text-center">
@@ -240,6 +305,7 @@ const Auth = () => {
                   type="button"
                   onClick={() => {
                     setIsSignUp(!isSignUp);
+                    setIsForgotPassword(false);
                     setErrors({});
                   }}
                   className="text-primary hover:underline font-medium"

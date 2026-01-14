@@ -23,12 +23,6 @@ const roleConfig = {
     gradient: "from-purple-500 to-pink-500",
     description: "Resolve issues, manage news, and moderate content."
   },
-  helper: { 
-    icon: Wrench, 
-    label: "Helper", 
-    gradient: "from-blue-500 to-cyan-500",
-    description: "Report all types of problems and assist users in the community."
-  },
   user: { 
     icon: User, 
     label: "User", 

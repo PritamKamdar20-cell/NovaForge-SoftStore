@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/Layout";
-import { User, Mail, Crown, Shield, Wrench, Package, MessageSquare, AlertTriangle, Settings, CreditCard, Key, Pencil } from "lucide-react";
+import { User, Mail, Crown, Shield, Package, MessageSquare, AlertTriangle, Settings, CreditCard, Key, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";

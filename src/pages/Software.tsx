@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { ConfirmDeleteDialog } from "@/components/ConfirmDeleteDialog";
 import { useToast } from "@/hooks/use-toast";
 import { useSiteStats } from "@/hooks/useSiteStats";
-import { Monitor, Apple, Laptop, Smartphone, Tablet, Globe, Phone, Download, Trash2, Package, Search, Upload } from "lucide-react";
+import { Monitor, Apple, Laptop, Smartphone, Tablet, Globe, Phone, Download, Trash2, Package, Search, Upload, Tv } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const platformIcons: Record<string, React.ElementType> = {
@@ -20,6 +20,7 @@ const platformIcons: Record<string, React.ElementType> = {
   ios: Tablet,
   web: Globe,
   keypad: Phone,
+  androidtv: Tv,
 };
 
 const platformNames: Record<string, string> = {
@@ -30,6 +31,7 @@ const platformNames: Record<string, string> = {
   ios: "iOS",
   web: "Web",
   keypad: "Keypad Mobile",
+  androidtv: "Android TV",
 };
 
 interface Software {

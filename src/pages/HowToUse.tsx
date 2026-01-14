@@ -89,6 +89,7 @@ const HowToUse = () => {
                 { name: "iOS", emoji: "📱" },
                 { name: "Web", emoji: "🌐" },
                 { name: "Keypad Mobile", emoji: "📞" },
+                { name: "Android TV", emoji: "📺" },
               ].map((platform) => (
                 <div key={platform.name} className="text-center p-4 rounded-xl bg-muted/30">
                   <span className="text-2xl mb-2 block">{platform.emoji}</span>

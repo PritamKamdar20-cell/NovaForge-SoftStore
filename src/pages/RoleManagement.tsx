@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, User, Crown, Wrench, Users, Ban, Check, Search } from "lucide-react";
+import { Shield, User, Crown, Users, Ban, Check, Search } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,7 @@ interface UserWithRole {
 const ROLE_CONFIG: Record<AppRole, { label: string; icon: typeof User; color: string }> = {
   owner: { label: "Owner", icon: Crown, color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" },
   admin: { label: "Admin", icon: Shield, color: "bg-red-500/20 text-red-400 border-red-500/30" },
+  helper: { label: "Helper", icon: User, color: "bg-blue-500/20 text-blue-400 border-blue-500/30" },
   user: { label: "User", icon: User, color: "bg-muted text-muted-foreground border-border" },
 };
 
@@ -266,7 +267,9 @@ const RoleManagement = () => {
 
           {/* Role Legend */}
           <div className="flex flex-wrap justify-center gap-4 mb-8">
-            {(Object.entries(ROLE_CONFIG) as [AppRole, typeof ROLE_CONFIG[AppRole]][]).map(([roleKey, config]) => {
+            {(Object.entries(ROLE_CONFIG) as [AppRole, typeof ROLE_CONFIG[AppRole]][])
+              .filter(([roleKey]) => roleKey !== "helper")
+              .map(([roleKey, config]) => {
               const Icon = config.icon;
               return (
                 <Badge key={roleKey} variant="outline" className={`${config.color} gap-1`}>
@@ -362,12 +365,6 @@ const RoleManagement = () => {
                                 <span className="flex items-center gap-2">
                                   <User className="w-3 h-3" />
                                   User
-                                </span>
-                              </SelectItem>
-                              <SelectItem value="helper">
-                                <span className="flex items-center gap-2">
-                                  <Wrench className="w-3 h-3" />
-                                  Helper
                                 </span>
                               </SelectItem>
                               <SelectItem value="admin">

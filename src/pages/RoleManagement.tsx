@@ -28,7 +28,6 @@ interface UserWithRole {
 const ROLE_CONFIG: Record<AppRole, { label: string; icon: typeof User; color: string }> = {
   owner: { label: "Owner", icon: Crown, color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" },
   admin: { label: "Admin", icon: Shield, color: "bg-red-500/20 text-red-400 border-red-500/30" },
-  helper: { label: "Helper", icon: Wrench, color: "bg-blue-500/20 text-blue-400 border-blue-500/30" },
   user: { label: "User", icon: User, color: "bg-muted text-muted-foreground border-border" },
 };
 

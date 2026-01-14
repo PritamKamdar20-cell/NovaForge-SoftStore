@@ -72,7 +72,7 @@ export function HeroSection() {
         <div className="flex items-center justify-center gap-6 mt-16 animate-fade-in" style={{ animationDelay: "0.5s" }}>
           <span className="text-sm text-muted-foreground">Available for:</span>
           <div className="flex items-center gap-3">
-            {["Windows", "Mac", "Linux", "Android", "iOS", "Web", "Mobile"].map((platform) => (
+            {["Windows", "Mac", "Linux", "Android", "iOS","keypad", "Web", "Android TV"].map((platform) => (
               <span key={platform} className="platform-badge">
                 {platform}
               </span>

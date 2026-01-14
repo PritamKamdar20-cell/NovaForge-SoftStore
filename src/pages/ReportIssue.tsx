@@ -49,7 +49,6 @@ const ReportIssue = () => {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const canViewReports = role === "admin" || role === "owner";
-  const canReportAll = role === "helper" || role === "admin" || role === "owner";
 
   const fetchReports = async () => {
     if (!user) return;
@@ -187,25 +186,22 @@ const ReportIssue = () => {
                   onValueChange={setIssueType} 
                   className="grid grid-cols-1 sm:grid-cols-2 gap-3"
                 >
-                  {issueTypes.map((type) => {
-                    const isDisabled = !canReportAll && type.value !== "bug";
-                    return (
-                      <Label
-                        key={type.value}
-                        htmlFor={type.value}
-                        className={`flex items-start gap-3 p-4 rounded-xl bg-muted/30 border border-border/50 cursor-pointer hover:bg-muted/50 hover:border-primary/30 transition-colors [&:has([data-state=checked])]:border-primary [&:has([data-state=checked])]:bg-primary/10 ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
-                      >
-                        <RadioGroupItem value={type.value} id={type.value} className="mt-0.5" disabled={isDisabled} />
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 font-medium">
-                            <type.icon className="w-4 h-4 text-primary" />
-                            {type.label}
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-1">{type.description}</p>
+                  {issueTypes.map((type) => (
+                    <Label
+                      key={type.value}
+                      htmlFor={type.value}
+                      className="flex items-start gap-3 p-4 rounded-xl bg-muted/30 border border-border/50 cursor-pointer hover:bg-muted/50 hover:border-primary/30 transition-colors [&:has([data-state=checked])]:border-primary [&:has([data-state=checked])]:bg-primary/10"
+                    >
+                      <RadioGroupItem value={type.value} id={type.value} className="mt-0.5" />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 font-medium">
+                          <type.icon className="w-4 h-4 text-primary" />
+                          {type.label}
                         </div>
-                      </Label>
-                    );
-                  })}
+                        <p className="text-xs text-muted-foreground mt-1">{type.description}</p>
+                      </div>
+                    </Label>
+                  ))}
                 </RadioGroup>
               </div>
 
@@ -327,10 +323,10 @@ const ReportIssue = () => {
             <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
               <h4 className="font-semibold mb-2 flex items-center gap-2">
                 <Shield className="w-5 h-5 text-blue-400" />
-                Who Can Report What
+                Report Any Issue
               </h4>
               <p className="text-sm text-muted-foreground">
-                <strong>Helpers</strong> can report all issue types (bugs, fake content, security, and other). <strong>Users</strong> can only report bugs.
+                Everyone can report all issue types including bugs, fake content, security concerns, and other issues.
               </p>
             </div>
             <div className="p-6 rounded-2xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20">
